@@ -181,3 +181,67 @@ exports.updateCartItem = async (req, res) => {
       });
     }
     
+    // Get userId (in a real app, from authenticated session)
+    const userId = req.cookies.userId || 'anonymous';
+    
+    // Get cart
+    const cart = getCart(userId);
+    
+    // Find item in cart
+    const itemIndex = cart.items.findIndex(
+      item => item.productId.toString() === productId
+    );
+    
+    if (itemIndex === -1) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'Item not found in cart'
+      });
+    }
+    
+    // Update quantity
+    cart.items[itemIndex].quantity = quantity;
+    
+    // Calculate updated cart totals
+    const enrichedCart = await calculateCartTotals(cart);
+    
+    res.status(200).json({
+      status: 'success',
+      data: {
+        cart: enrichedCart
+      }
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'fail',
+      message: err.message
+    });
+  }
+};
+
+// Clear cart
+exports.clearCart = async (req, res) => {
+  try {
+    // Get userId (in a real app, from authenticated session)
+    const userId = req.cookies.userId || 'anonymous';
+    
+    // Get cart and clear items
+    const cart = getCart(userId);
+    cart.items = [];
+    
+    // Calculate updated cart totals (will be empty)
+    const enrichedCart = await calculateCartTotals(cart);
+    
+    res.status(200).json({
+      status: 'success',
+      data: {
+        cart: enrichedCart
+      }
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'fail',
+      message: err.message
+    });
+  }
+};
