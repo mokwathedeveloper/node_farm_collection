@@ -25,3 +25,33 @@ app.use((req, res, next) => {
   }
   next();
 });
+
+// MongoDB Connection
+const password = encodeURIComponent('Johnosiemo123');
+const DB = `mongodb+srv://farmcolection:${password}@farm.odloyec.mongodb.net/?retryWrites=true&w=majority&appName=farm`;
+
+mongoose.connect(DB)
+  .then(() => console.log('DB connection successful'))
+  .catch(err => console.log('DB connection error:', err));
+
+// Define product schema
+const productSchema = new mongoose.Schema({
+  productName: {
+    type: String,
+    required: [true, 'A product must have a name'],
+    trim: true
+  },
+  price: {
+    type: Number,
+    required: [true, 'A product must have a price']
+  },
+  image: String,
+  from: String,
+  nutrients: String,
+  quantity: String,
+  description: String,
+  organic: {
+    type: Boolean,
+    default: false
+  }
+});
