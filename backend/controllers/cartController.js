@@ -134,3 +134,50 @@ exports.addToCart = async (req, res) => {
     });
   }
 };
+
+// Remove from cart
+exports.removeFromCart = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    
+    // Get userId (in a real app, from authenticated session)
+    const userId = req.cookies.userId || 'anonymous';
+    
+    // Get cart
+    const cart = getCart(userId);
+    
+    // Remove item from cart
+    cart.items = cart.items.filter(
+      item => item.productId.toString() !== productId
+    );
+    
+    // Calculate updated cart totals
+    const enrichedCart = await calculateCartTotals(cart);
+    
+    res.status(200).json({
+      status: 'success',
+      data: {
+        cart: enrichedCart
+      }
+    });
+  } catch (err) {
+    res.status(400).json({
+      status: 'fail',
+      message: err.message
+    });
+  }
+};
+
+// Update cart item
+exports.updateCartItem = async (req, res) => {
+  try {
+    const productId = req.params.id;
+    const quantity = parseInt(req.body.quantity);
+    
+    if (!quantity || quantity < 1) {
+      return res.status(400).json({
+        status: 'fail',
+        message: 'Quantity must be at least 1'
+      });
+    }
+    
