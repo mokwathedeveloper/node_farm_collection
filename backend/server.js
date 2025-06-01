@@ -55,3 +55,81 @@ const productSchema = new mongoose.Schema({
     default: false
   }
 });
+
+const Product = mongoose.model('Product', productSchema);
+
+// Import cart routes
+const cartRoutes = require('./routes/cartRoutes');
+
+// Routes
+// Get all products
+app.get('/api/products', async (req, res) => {
+  try {
+    const products = await Product.find();
+    res.status(200).json({
+      status: 'success',
+      results: products.length,
+      data: {
+        products
+      }
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'fail',
+      message: err.message
+    });
+  }
+});
+
+// Get a single product
+app.get('/api/products/:id', async (req, res) => {
+  try {
+    const product = await Product.findById(req.params.id);
+    if (!product) {
+      return res.status(404).json({
+        status: 'fail',
+        message: 'Product not found'
+      });
+    }
+    res.status(200).json({
+      status: 'success',
+      data: {
+        product
+      }
+    });
+  } catch (err) {
+    res.status(404).json({
+      status: 'fail',
+      message: err.message
+    });
+  }
+});
+
+// Create a new product
+app.post('/api/products', async (req, res) => {
+  try {
+    console.log('Received product data:', req.body);
+    const newProduct = await Product.create(req.body);
+    
+    res.status(201).json({
+      status: 'success',
+      data: {
+        product: newProduct
+      }
+    });
+  } catch (err) {
+    console.error('Error creating product:', err);
+    res.status(400).json({
+      status: 'fail',
+      message: err.message
+    });
+  }
+});
+
+// Use cart routes
+app.use('/api/cart', cartRoutes);
+
+// Start server
+app.listen(PORT, () => {
+  console.log(`Backend server running on port ${PORT}`);
+});
