@@ -1,8 +1,9 @@
 import React, { useState, useEffect } from 'react';
-import { Container, Row, Col, Spinner, Alert } from 'react-bootstrap';
-import ProductCard from '../components/ProductCard';
+import { Link } from 'react-router-dom';
+import axios from 'axios';
+import { Card, Row, Col, Button } from 'react-bootstrap';
 
-function ProductList() {
+const ProductList = () => {
   const [products, setProducts] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
@@ -10,64 +11,47 @@ function ProductList() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const response = await fetch('/api/products');
-        
-        if (!response.ok) {
-          throw new Error('Failed to fetch products');
-        }
-        
-        const data = await response.json();
-        setProducts(data.data.products);
-        setError(null);
-      } catch (err) {
-        console.error('Error fetching products:', err);
-        setError(err.message);
-      } finally {
+        const response = await axios.get('http://localhost:3000/api/products');
+        setProducts(response.data.data.products);
         setLoading(false);
+      } catch (err) {
+        setError('Failed to fetch products');
+        setLoading(false);
+        console.error(err);
       }
     };
 
     fetchProducts();
   }, []);
 
-  if (loading) {
-    return (
-      <Container className="text-center py-5">
-        <Spinner animation="border" role="status" variant="primary">
-          <span className="visually-hidden">Loading...</span>
-        </Spinner>
-        <p className="mt-3">Loading products...</p>
-      </Container>
-    );
-  }
-
-  if (error) {
-    return (
-      <Container className="py-5">
-        <Alert variant="danger">Error: {error}</Alert>
-      </Container>
-    );
-  }
+  if (loading) return <p>Loading products...</p>;
+  if (error) return <p>{error}</p>;
 
   return (
-    <Container className="py-5">
-      <h2 className="text-center mb-4" style={{ color: '#27ae60' }}>Our Fresh Products</h2>
-      
-      {products.length > 0 ? (
-        <Row xs={1} md={2} lg={4} className="g-4">
-          {products.map(product => (
-            <Col key={product._id}>
-              <ProductCard product={product} />
-            </Col>
-          ))}
-        </Row>
-      ) : (
-        <Alert variant="info" className="text-center">
-          No products available.
-        </Alert>
-      )}
-    </Container>
+    <div>
+      <h1 className="mb-4">Our Products</h1>
+      <Row>
+        {products.map(product => (
+          <Col key={product._id} md={4} className="mb-4">
+            <Card>
+              {product.image && (
+                <Card.Img variant="top" src={product.image} alt={product.productName} />
+              )}
+              <Card.Body>
+                <Card.Title>{product.productName}</Card.Title>
+                <Card.Text>
+                  ${product.price.toFixed(2)}
+                </Card.Text>
+                <Button as={Link} to={`/products/${product._id}`} variant="primary">
+                  View Details
+                </Button>
+              </Card.Body>
+            </Card>
+          </Col>
+        ))}
+      </Row>
+    </div>
   );
-}
+};
 
 export default ProductList;
