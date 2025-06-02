@@ -1,30 +1,28 @@
 import React from 'react';
 import { BrowserRouter as Router, Routes, Route } from 'react-router-dom';
-import { CartProvider } from './context/CartContext';
-import Header from './components/Header';
-import Footer from './components/Footer';
-import ProductList from './components/ProductList';
-import ProductDetail from './components/ProductDetail';
-import Cart from './components/Cart';
+import Navbar from './components/Navbar';
+import Home from './pages/Home';
+import ProductList from './pages/ProductList';
+import ProductDetail from './pages/ProductDetail';
+import Cart from './pages/Cart';
+import 'bootstrap/dist/css/bootstrap.min.css';
 import './App.css';
 
 function App() {
   return (
-    <CartProvider>
-      <Router>
-        <div className="app d-flex flex-column min-vh-100">
-          <Header />
-          <main className="flex-grow-1">
-            <Routes>
-              <Route path="/" element={<ProductList />} />
-              <Route path="/product/:id" element={<ProductDetail />} />
-              <Route path="/cart" element={<Cart />} />
-            </Routes>
-          </main>
-          <Footer />
-        </div>
-      </Router>
-    </CartProvider>
+    <Router>
+      <div className="App">
+        <Navbar />
+        <main className="container mt-4">
+          <Routes>
+            <Route path="/" element={<Home />} />
+            <Route path="/products" element={<ProductList />} />
+            <Route path="/products/:id" element={<ProductDetail />} />
+            <Route path="/cart" element={<Cart />} />
+          </Routes>
+        </main>
+      </div>
+    </Router>
   );
 }
 
