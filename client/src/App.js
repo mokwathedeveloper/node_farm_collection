@@ -28,7 +28,7 @@ function App() {
             </Routes>
           </main>
           <footer className="bg-light py-3 text-center">
-            <p className="mb-0">© 2023 Farm Collection. All rights reserved.</p>
+            <p className="mb-0">© 2025 Farm Collection. All rights reserved.</p>
           </footer>
         </div>
       </CartProvider>
