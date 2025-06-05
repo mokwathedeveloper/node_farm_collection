@@ -5,7 +5,7 @@ import { CartContext } from '../context/CartContext';
 
 const Cart = () => {
   const { cart, loading, updateCartItem, removeFromCart, clearCart } = useContext(CartContext);
-  const [isProcessing, setIsProcessing] = useState(false);
+  const [isProcessing] = useState(false);
   const navigate = useNavigate();
 
   const handleQuantityChange = async (productId, newQuantity) => {
