@@ -1,25 +1,40 @@
 const mongoose = require('mongoose');
 
 const productSchema = new mongoose.Schema({
-  productName: {
+  name: {
     type: String,
-    required: [true, 'A product must have a name']
+    required: [true, 'A product must have a name'],
+    trim: true
   },
-  image: String,
-  from: String,
-  nutrients: String,
-  quantity: String,
+  description: {
+    type: String,
+    required: [true, 'A product must have a description'],
+    trim: true
+  },
   price: {
     type: Number,
     required: [true, 'A product must have a price']
   },
-  organic: {
-    type: Boolean,
-    default: false
-  },
-  description: {
+  category: {
     type: String,
-    required: [true, 'A product must have a description']
+    required: [true, 'A product must have a category'],
+    trim: true
+  },
+  image: {
+    type: String,
+    default: 'default.jpg'
+  },
+  inStock: {
+    type: Boolean,
+    default: true
+  },
+  quantity: {
+    type: Number,
+    default: 0
+  },
+  createdAt: {
+    type: Date,
+    default: Date.now
   }
 });
 
