@@ -2,10 +2,12 @@ import React, { useContext } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { Navbar as BootstrapNavbar, Nav, Container, Badge } from 'react-bootstrap';
 import { CartContext } from '../context/CartContext';
+import { AdminContext } from '../context/AdminContext';
 
 const Navbar = () => {
   const navigate = useNavigate();
   const { cart } = useContext(CartContext);
+  const { isAdmin } = useContext(AdminContext);
   
   // Calculate total items in cart
   const itemCount = cart?.items?.reduce((total, item) => total + item.quantity, 0) || 0;
@@ -40,13 +42,23 @@ const Navbar = () => {
                 <Badge 
                   bg="success" 
                   pill 
-                  className="position-absolute" 
-                  style={{ top: '0', right: '0', transform: 'translate(50%, -50%)' }}
+                  className="position-absolute"
+                  style={{ top: '-8px', right: '-8px' }}
                 >
                   {itemCount}
                 </Badge>
               )}
             </Nav.Link>
+            
+            {/* Admin Link - only show if user is admin */}
+            {isAdmin && (
+              <Nav.Link as={Link} to="/admin/dashboard">Admin</Nav.Link>
+            )}
+            
+            {/* Admin Login Link - show if not admin */}
+            {!isAdmin && (
+              <Nav.Link as={Link} to="/admin/login">Admin Login</Nav.Link>
+            )}
           </Nav>
         </BootstrapNavbar.Collapse>
       </Container>
