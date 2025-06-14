@@ -1,135 +1,63 @@
+// Add this near the top of your server.js file, before other requires
+if (process.env.NODE_ENV === 'development') {
+  require('./src/utils/deprecationShim');
+}
+
+// Import required modules
 const express = require('express');
-const mongoose = require('mongoose');
+const dotenv = require('dotenv');
 const cors = require('cors');
 const cookieParser = require('cookie-parser');
-const { v4: uuidv4 } = require('uuid');
+const connectDB = require('./src/config/db');
+const { notFound, errorHandler } = require('./src/middleware/errorMiddleware');
+const authRoutes = require('./src/routes/authRoutes');
+const userRoutes = require('./src/routes/userRoutes');
+const productRoutes = require('./src/routes/productRoutes');
+const { swaggerUi, swaggerDocs } = require('./src/config/swagger');
+const logger = require('./src/utils/logger');
+
+// Load environment variables
+dotenv.config();
+
+// Connect to database
+connectDB();
+
 const app = express();
-const PORT = process.env.PORT || 3000;
 
 // Middleware
-app.use(cors({
-  origin: 'http://localhost:3001', // React app will run on port 3001
-  credentials: true // Allow cookies to be sent
-})); 
-app.use(express.json()); // Parse JSON request bodies
-app.use(express.urlencoded({ extended: true })); // Parse URL-encoded bodies
-app.use(cookieParser()); // Parse cookies
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
+app.use(cors());
 
-// Set userId cookie if not present
-app.use((req, res, next) => {
-  if (!req.cookies.userId) {
-    res.cookie('userId', uuidv4(), {
-      httpOnly: true,
-      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
-    });
-  }
-  next();
+// API Documentation
+app.use('/api-docs', swaggerUi.serve, swaggerUi.setup(swaggerDocs));
+
+// Welcome route
+app.get('/', (req, res) => {
+  res.json({ message: 'API is running...' });
 });
-
-// MongoDB Connection
-const password = encodeURIComponent('Johnosiemo123');
-const DB = `mongodb+srv://farmcolection:${password}@farm.odloyec.mongodb.net/?retryWrites=true&w=majority&appName=farm`;
-
-mongoose.connect(DB)
-  .then(() => console.log('DB connection successful'))
-  .catch(err => console.log('DB connection error:', err));
-
-// Define product schema
-const productSchema = new mongoose.Schema({
-  productName: {
-    type: String,
-    required: [true, 'A product must have a name'],
-    trim: true
-  },
-  price: {
-    type: Number,
-    required: [true, 'A product must have a price']
-  },
-  image: String,
-  from: String,
-  nutrients: String,
-  quantity: String,
-  description: String,
-  organic: {
-    type: Boolean,
-    default: false
-  }
-});
-
-const Product = mongoose.model('Product', productSchema);
-
-// Import cart routes
-const cartRoutes = require('./routes/cartRoutes');
 
 // Routes
-// Get all products
-app.get('/api/products', async (req, res) => {
-  try {
-    const products = await Product.find();
-    res.status(200).json({
-      status: 'success',
-      results: products.length,
-      data: {
-        products
-      }
-    });
-  } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: err.message
-    });
-  }
-});
+app.use('/api/auth', authRoutes);
+app.use('/api/admin/users', userRoutes);
+app.use('/api/products', productRoutes);
 
-// Get a single product
-app.get('/api/products/:id', async (req, res) => {
-  try {
-    const product = await Product.findById(req.params.id);
-    if (!product) {
-      return res.status(404).json({
-        status: 'fail',
-        message: 'Product not found'
-      });
-    }
-    res.status(200).json({
-      status: 'success',
-      data: {
-        product
-      }
-    });
-  } catch (err) {
-    res.status(404).json({
-      status: 'fail',
-      message: err.message
-    });
-  }
-});
-
-// Create a new product
-app.post('/api/products', async (req, res) => {
-  try {
-    console.log('Received product data:', req.body);
-    const newProduct = await Product.create(req.body);
-    
-    res.status(201).json({
-      status: 'success',
-      data: {
-        product: newProduct
-      }
-    });
-  } catch (err) {
-    console.error('Error creating product:', err);
-    res.status(400).json({
-      status: 'fail',
-      message: err.message
-    });
-  }
-});
-
-// Use cart routes
-app.use('/api/cart', cartRoutes);
+// Error handling middleware
+app.use(notFound);
+app.use(errorHandler);
 
 // Start server
+const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
-  console.log(`Backend server running on port ${PORT}`);
+  logger.info(`Server running in ${process.env.NODE_ENV || 'development'} mode on port ${PORT}`);
+  console.log(`Server running on port ${PORT}`);
+});
+
+// Handle unhandled promise rejections
+process.on('unhandledRejection', (err) => {
+  logger.error(`Unhandled Rejection: ${err.message}`);
+  console.error('UNHANDLED REJECTION! Shutting down...');
+  console.error(err.name, err.message);
+  process.exit(1);
 });
