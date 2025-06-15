@@ -16,7 +16,7 @@ function HomePage() {
         setLoading(true);
         setError(null);
         
-        const response = await axios.get(`${API_URL}/api/products/featured?limit=4`);
+        const response = await axios.get('/api/products/featured?limit=4');
         
         if (response.data && response.data.products) {
           setFeaturedProducts(response.data.products);
@@ -70,9 +70,20 @@ function HomePage() {
         ) : error ? (
           <div className="text-center text-red-500">{error}</div>
         ) : (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
             {featuredProducts.map((product) => (
-              <ProductCard key={product._id} product={product} />
+              <ProductCard
+                key={product._id}
+                product={product}
+                onAddToCart={(product) => {
+                  // Add to cart functionality - you can implement this
+                  console.log('Add to cart:', product);
+                }}
+                onAddToWishlist={(product) => {
+                  // Add to wishlist functionality - you can implement this
+                  console.log('Add to wishlist:', product);
+                }}
+              />
             ))}
             {featuredProducts.length === 0 && (
               <div className="col-span-4 text-center text-gray-500">

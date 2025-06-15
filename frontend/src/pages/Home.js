@@ -2,6 +2,7 @@ import { useEffect, useState } from 'react';
 import { useDispatch, useSelector } from 'react-redux';
 import { Link } from 'react-router-dom';
 import { fetchProducts } from '../redux/slices/productSlice';
+import ProductCard from '../components/ProductCard';
 
 function Home() {
   const dispatch = useDispatch();
@@ -66,27 +67,21 @@ function Home() {
         </form>
       </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+      <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-3 sm:gap-4 md:gap-6">
         {products.length > 0 ? (
           products.map((product) => (
-            <div key={product._id} className="border rounded-lg overflow-hidden shadow-md">
-              <img
-                src={product.image || 'https://via.placeholder.com/300'}
-                alt={product.name}
-                className="w-full h-48 object-cover"
-              />
-              <div className="p-4">
-                <h2 className="text-xl font-semibold mb-2">{product.name}</h2>
-                <p className="text-gray-700 mb-2">${product.price.toFixed(2)}</p>
-                <p className="text-sm text-gray-500 mb-4">{product.category}</p>
-                <Link
-                  to={`/product/${product._id}`}
-                  className="bg-blue-600 text-white px-4 py-2 rounded block text-center hover:bg-blue-700"
-                >
-                  View Details
-                </Link>
-              </div>
-            </div>
+            <ProductCard
+              key={product._id}
+              product={product}
+              onAddToCart={(product) => {
+                // Add to cart functionality - you can implement this
+                console.log('Add to cart:', product);
+              }}
+              onAddToWishlist={(product) => {
+                // Add to wishlist functionality - you can implement this
+                console.log('Add to wishlist:', product);
+              }}
+            />
           ))
         ) : (
           <div className="col-span-full text-center py-10">
