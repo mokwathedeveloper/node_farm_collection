@@ -6,25 +6,36 @@ const { v4: uuidv4 } = require('uuid');
 
 // Helper function to calculate cart total
 const calculateCartTotal = (items) => {
-  return items.reduce((total, item) => total + (item.price * item.quantity), 0);
+  return items.reduce((total, item) => {
+    const price = item.price || (item.product?.price) || 0;
+    const quantity = item.quantity || 0;
+    return total + (price * quantity);
+  }, 0);
 };
 
 // Helper function to format cart response
 const formatCartResponse = (cart) => {
+  if (!cart) {
+    return { _id: null, items: [], total: 0 };
+  }
+
+  const validItems = cart.items.filter(item => item.product);
+
   return {
     _id: cart._id,
-    items: cart.items.map(item => ({
+    items: validItems.map(item => ({
       product: {
         _id: item.product._id,
-        name: item.product.name,
-        image: item.product.images?.[0]?.url,
-        price: item.product.price,
-        stock: item.product.stock
+        name: item.product.name || 'Unknown Product',
+        image: item.product.images?.[0]?.url || item.product.image,
+        price: item.product.price || 0,
+        stock: item.product.stock || 0,
+        category: item.product.category
       },
-      quantity: item.quantity,
-      price: item.price
+      quantity: item.quantity || 0,
+      price: item.price || item.product.price || 0
     })),
-    total: calculateCartTotal(cart.items)
+    total: calculateCartTotal(validItems)
   };
 };
 
@@ -234,8 +245,103 @@ const removeFromCart = asyncHandler(async (req, res) => {
   }
 });
 
+// @desc    Update cart item quantity (handles both authenticated and guest users)
+// @route   PUT /api/cart/:productId
+// @access  Public/Private
+const updateCartItem = asyncHandler(async (req, res) => {
+  console.log('updateCartItem called with:', {
+    productId: req.params.productId,
+    quantity: req.body.quantity,
+    isGuest: req.isGuest,
+    hasUser: !!req.user
+  });
+
+  const { productId } = req.params;
+  const { quantity } = req.body;
+
+  if (!quantity || quantity < 1) {
+    res.status(400);
+    throw new Error('Quantity must be at least 1');
+  }
+
+  // Find product to check stock
+  const product = await Product.findById(productId);
+  if (!product) {
+    res.status(404);
+    throw new Error('Product not found');
+  }
+
+  // Check if requested quantity exceeds available stock
+  if (quantity > product.stock) {
+    res.status(400);
+    throw new Error(`Sorry, only ${product.stock} items available in stock`);
+  }
+
+  if (!req.isGuest) {
+    // Handle authenticated user
+    let cart = await Cart.findOne({ user: req.user._id });
+
+    if (!cart) {
+      res.status(404);
+      throw new Error('Cart not found');
+    }
+
+    const itemIndex = cart.items.findIndex(item =>
+      item.product.toString() === productId
+    );
+
+    if (itemIndex === -1) {
+      res.status(404);
+      throw new Error('Item not found in cart');
+    }
+
+    // Update quantity
+    cart.items[itemIndex].quantity = quantity;
+    cart.total = calculateCartTotal(cart.items);
+    await cart.save();
+
+    const updatedCart = await Cart.findOne({ user: req.user._id }).populate({
+      path: 'items.product',
+      select: 'name images price stock'
+    });
+
+    res.status(200).json(formatCartResponse(updatedCart));
+  } else {
+    // Handle guest user
+    const sessionId = getSessionId(req, res);
+    let cart = await GuestCart.findOne({ sessionId });
+
+    if (!cart) {
+      res.status(404);
+      throw new Error('Cart not found');
+    }
+
+    const itemIndex = cart.items.findIndex(item =>
+      item.product.toString() === productId
+    );
+
+    if (itemIndex === -1) {
+      res.status(404);
+      throw new Error('Item not found in cart');
+    }
+
+    // Update quantity
+    cart.items[itemIndex].quantity = quantity;
+    cart.total = calculateCartTotal(cart.items);
+    await cart.save();
+
+    const updatedCart = await GuestCart.findOne({ sessionId }).populate({
+      path: 'items.product',
+      select: 'name images price stock'
+    });
+
+    res.status(200).json(formatCartResponse(updatedCart));
+  }
+});
+
 module.exports = {
   getCart,
   addToCart,
-  removeFromCart
+  removeFromCart,
+  updateCartItem
 };

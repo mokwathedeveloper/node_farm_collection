@@ -89,7 +89,11 @@ function CartPage() {
   };
 
   const calculateSubtotal = () => {
-    return cartItems.reduce((total, item) => total + (item.price * item.quantity), 0);
+    return cartItems.reduce((total, item) => {
+      const price = item.price || item.product?.price || 0;
+      const quantity = item.quantity || 0;
+      return total + (price * quantity);
+    }, 0);
   };
 
   const calculateTax = () => {
@@ -230,12 +234,12 @@ function CartPage() {
                       <div className="flex items-center sm:items-start">
                         <div className="h-20 w-20 flex-shrink-0 overflow-hidden rounded-md border border-gray-200">
                           <img
-                            src={item.product.image}
+                            src={item.product.image || item.product.images?.[0]?.url}
                             alt={item.product.name}
                             className="h-full w-full object-cover object-center"
                             onError={(e) => {
                               e.target.onerror = null;
-                              e.target.src = 'https://via.placeholder.com/150?text=No+Image';
+                              e.target.src = 'data:image/svg+xml;base64,PHN2ZyB3aWR0aD0iMTUwIiBoZWlnaHQ9IjE1MCIgdmlld0JveD0iMCAwIDE1MCAxNTAiIGZpbGw9Im5vbmUiIHhtbG5zPSJodHRwOi8vd3d3LnczLm9yZy8yMDAwL3N2ZyI+CjxyZWN0IHdpZHRoPSIxNTAiIGhlaWdodD0iMTUwIiBmaWxsPSIjRjNGNEY2Ii8+CjxwYXRoIGQ9Ik03NSA0NUw5MCA2MEg2MEw3NSA0NVoiIGZpbGw9IiM5Q0EzQUYiLz4KPHBhdGggZD0iTTQ1IDEwNUgxMDVWOTBINDVWMTA1WiIgZmlsbD0iIzlDQTNBRiIvPgo8dGV4dCB4PSI3NSIgeT0iMTI1IiB0ZXh0LWFuY2hvcj0ibWlkZGxlIiBmb250LWZhbWlseT0iQXJpYWwiIGZvbnQtc2l6ZT0iMTIiIGZpbGw9IiM2QjcyODAiPk5vIEltYWdlPC90ZXh0Pgo8L3N2Zz4K';
                             }}
                           />
                         </div>
@@ -252,7 +256,7 @@ function CartPage() {
                                 <p className="mt-1 text-sm text-gray-500">{item.product.category}</p>
                               )}
                             </div>
-                            <p className="text-base font-medium text-gray-900">${item.price.toFixed(2)}</p>
+                            <p className="text-base font-medium text-gray-900">${(item.price || item.product?.price || 0).toFixed(2)}</p>
                           </div>
 
                           <div className="flex-1 flex items-end justify-between text-sm">
@@ -285,7 +289,7 @@ function CartPage() {
                             </div>
 
                             <div className="flex items-center space-x-4">
-                              <p className="font-medium">${(item.price * item.quantity).toFixed(2)}</p>
+                              <p className="font-medium">${((item.price || item.product?.price || 0) * (item.quantity || 0)).toFixed(2)}</p>
                               <button
                                 type="button"
                                 className="font-medium text-indigo-600 hover:text-indigo-500 transition-colors"

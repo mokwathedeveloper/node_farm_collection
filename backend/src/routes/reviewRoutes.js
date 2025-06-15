@@ -1,12 +1,13 @@
 const express = require('express');
-const { 
-  addReview, 
-  deleteReview, 
+const {
+  addReview,
+  deleteReview,
   updateReview,
   getProductReviews,
   getUserReviews,
   getReviewById,
-  reportReview
+  reportReview,
+  getReportedReviews
 } = require('../controllers/reviewController');
 const { protect, admin } = require('../middleware/authMiddleware');
 const router = express.Router();
