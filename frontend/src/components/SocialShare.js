@@ -134,7 +134,7 @@ const SocialShare = ({ open, onClose, product }) => {
             alignItems: 'center',
           }}
         >
-          <Typography variant="h6">Share This Product</Typography>
+          Share This Product
           <IconButton onClick={onClose}>
             <CloseIcon />
           </IconButton>

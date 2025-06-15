@@ -321,23 +321,60 @@ const ProductDetailsPage = () => {
 
                     {activeTab === 1 && (
                       <Box>
-                        {product.reviews.map((review) => (
-                          <motion.div
-                            key={review._id}
-                            initial={{ opacity: 0, y: 20 }}
-                            animate={{ opacity: 1, y: 0 }}
-                          >
-                            <Paper sx={{ p: 2, mb: 2 }}>
-                              <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
-                                <Rating value={review.rating} readOnly size="small" />
-                                <Typography variant="subtitle2" sx={{ ml: 1 }}>
-                                  {review.name}
+                        {/* Reviews Summary */}
+                        <Box sx={{ mb: 3, p: 2, bgcolor: 'grey.50', borderRadius: 1 }}>
+                          <Typography variant="h6" gutterBottom>
+                            Customer Reviews ({product.reviews?.length || 0})
+                          </Typography>
+                          <Box sx={{ display: 'flex', alignItems: 'center', gap: 2 }}>
+                            <Rating value={product.ratings || 0} readOnly precision={0.1} />
+                            <Typography variant="body1">
+                              {(product.ratings || 0).toFixed(1)} out of 5 stars
+                            </Typography>
+                          </Box>
+                        </Box>
+
+                        {/* Individual Reviews */}
+                        {product.reviews && product.reviews.length > 0 ? (
+                          product.reviews.map((review) => (
+                            <motion.div
+                              key={review._id}
+                              initial={{ opacity: 0, y: 20 }}
+                              animate={{ opacity: 1, y: 0 }}
+                            >
+                              <Paper sx={{ p: 3, mb: 2, border: '1px solid', borderColor: 'grey.200' }}>
+                                <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', mb: 2 }}>
+                                  <Box>
+                                    <Box sx={{ display: 'flex', alignItems: 'center', mb: 1 }}>
+                                      <Rating value={review.rating} readOnly size="small" />
+                                      <Typography variant="subtitle1" sx={{ ml: 1, fontWeight: 'medium' }}>
+                                        {review.name}
+                                      </Typography>
+                                    </Box>
+                                    <Typography variant="caption" color="text.secondary">
+                                      {new Date(review.createdAt).toLocaleDateString('en-US', {
+                                        year: 'numeric',
+                                        month: 'long',
+                                        day: 'numeric'
+                                      })}
+                                    </Typography>
+                                  </Box>
+                                </Box>
+                                <Typography variant="body1" sx={{ lineHeight: 1.6 }}>
+                                  {review.comment}
                                 </Typography>
-                              </Box>
-                              <Typography variant="body2">{review.comment}</Typography>
-                            </Paper>
-                          </motion.div>
-                        ))}
+                              </Paper>
+                            </motion.div>
+                          ))
+                        ) : (
+                          <Box sx={{ textAlign: 'center', py: 4 }}>
+                            <Typography variant="body1" color="text.secondary">
+                              No reviews yet. Be the first to review this product!
+                            </Typography>
+                          </Box>
+                        )}
+
+                        {/* Review Form */}
                         <ProductReviewForm
                           productId={product._id}
                           onReviewSubmitted={fetchProductDetails}
@@ -374,7 +411,6 @@ const ProductDetailsPage = () => {
             Related Products
           </Typography>
           <RelatedProducts
-            category={product.category}
             currentProductId={product._id}
           />
         </Box>

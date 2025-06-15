@@ -78,7 +78,13 @@ const ProductComparison = ({ open, onClose, currentProduct }) => {
       </Grid>
       {selectedProducts.map((product) => (
         <Grid item xs key={product._id} sx={{ textAlign: 'center' }}>
-          <Typography>{getValue(product)}</Typography>
+          <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '40px' }}>
+            {typeof getValue(product) === 'string' ? (
+              <Typography>{getValue(product)}</Typography>
+            ) : (
+              getValue(product)
+            )}
+          </Box>
         </Grid>
       ))}
     </Grid>
