@@ -4,13 +4,26 @@ const asyncHandler = require('express-async-handler');
 const { sendOrderConfirmation, sendOrderStatusUpdate } = require('../utils/emailService');
 
 // @desc    Get all orders
-// @route   GET /api/admin/orders
+// @route   GET /api/orders/admin
 // @access  Private/Admin
 const getOrders = asyncHandler(async (req, res) => {
-  const orders = await Order.find({})
-    .populate('user', 'id name email')
-    .populate('deliveryOption');
-  res.json(orders);
+  try {
+    console.log('Fetching admin orders...');
+
+    const orders = await Order.find({})
+      .populate('user', '_id name email')
+      .populate('deliveryOption')
+      .sort({ createdAt: -1 });
+
+    console.log(`Found ${orders.length} orders`);
+    res.json(orders);
+  } catch (error) {
+    console.error('Error fetching admin orders:', error);
+    res.status(500).json({
+      message: 'Error fetching orders',
+      error: error.message
+    });
+  }
 });
 
 // @desc    Get logged in user orders
@@ -89,7 +102,14 @@ const createOrder = asyncHandler(async (req, res) => {
     });
 
     const createdOrder = await order.save();
-    await sendOrderConfirmation(createdOrder, false);
+
+    // Send email confirmation (don't fail if email service is down)
+    try {
+      await sendOrderConfirmation(createdOrder, false);
+    } catch (emailError) {
+      console.error('Email service error:', emailError.message);
+    }
+
     res.status(201).json(createdOrder);
   }
 });
@@ -117,12 +137,59 @@ const updateOrderToPaid = asyncHandler(async (req, res) => {
     };
 
     const updatedOrder = await order.save();
-    await sendOrderStatusUpdate(updatedOrder, false);
+
+    // Send email notification (don't fail if email service is down)
+    try {
+      await sendOrderStatusUpdate(updatedOrder, false);
+    } catch (emailError) {
+      console.error('Email service error:', emailError.message);
+    }
+
     res.json(updatedOrder);
   } else {
     res.status(404);
     throw new Error('Order not found');
   }
+});
+
+// @desc    Update order status
+// @route   PUT /api/orders/:id/status
+// @access  Private/Admin
+const updateOrderStatus = asyncHandler(async (req, res) => {
+  const { status } = req.body;
+  const order = await Order.findById(req.params.id);
+
+  if (!order) {
+    res.status(404);
+    throw new Error('Order not found');
+  }
+
+  // Validate status
+  const validStatuses = ['pending', 'processing', 'shipped', 'delivered', 'cancelled'];
+  if (!validStatuses.includes(status)) {
+    res.status(400);
+    throw new Error('Invalid status');
+  }
+
+  // Update order status
+  order.status = status;
+
+  // Update related fields based on status
+  if (status === 'delivered') {
+    order.isDelivered = true;
+    order.deliveredAt = Date.now();
+  }
+
+  const updatedOrder = await order.save();
+
+  // Send email notification (don't fail if email service is down)
+  try {
+    await sendOrderStatusUpdate(updatedOrder, false);
+  } catch (emailError) {
+    console.error('Email service error:', emailError.message);
+  }
+
+  res.json(updatedOrder);
 });
 
 // @desc    Update order to delivered
@@ -137,7 +204,14 @@ const updateOrderToDelivered = asyncHandler(async (req, res) => {
     order.status = 'delivered';
 
     const updatedOrder = await order.save();
-    await sendOrderStatusUpdate(updatedOrder, false);
+
+    // Send email notification (don't fail if email service is down)
+    try {
+      await sendOrderStatusUpdate(updatedOrder, false);
+    } catch (emailError) {
+      console.error('Email service error:', emailError.message);
+    }
+
     res.json(updatedOrder);
   } else {
     res.status(404);
@@ -175,7 +249,14 @@ const cancelOrder = asyncHandler(async (req, res) => {
 
     order.status = 'cancelled';
     const updatedOrder = await order.save();
-    await sendOrderStatusUpdate(updatedOrder, false);
+
+    // Send email notification (don't fail if email service is down)
+    try {
+      await sendOrderStatusUpdate(updatedOrder, false);
+    } catch (emailError) {
+      console.error('Email service error:', emailError.message);
+    }
+
     res.json(updatedOrder);
   } else {
     res.status(404);
@@ -189,6 +270,7 @@ module.exports = {
   getOrderById,
   createOrder,
   updateOrderToPaid,
+  updateOrderStatus,
   updateOrderToDelivered,
   cancelOrder
 };

@@ -31,7 +31,7 @@ export const getOrderDetails = createAsyncThunk(
   'order/getOrderDetails',
   async (id, { rejectWithValue }) => {
     try {
-      const { data } = await api.get(`/api/orders/${id}`);
+      const { data } = await api.get(`/orders/${id}`);
       return data;
     } catch (error) {
       return rejectWithValue(
@@ -48,7 +48,7 @@ export const payOrder = createAsyncThunk(
   'order/payOrder',
   async ({ id, paymentResult }, { rejectWithValue }) => {
     try {
-      const { data } = await api.put(`/api/orders/${id}/pay`, paymentResult);
+      const { data } = await api.put(`/orders/${id}/pay`, paymentResult);
       return data;
     } catch (error) {
       return rejectWithValue(

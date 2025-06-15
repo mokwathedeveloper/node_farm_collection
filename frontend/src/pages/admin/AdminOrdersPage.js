@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
-import axios from 'axios';
+import { getAdminOrders, updateOrderStatus } from '../../services/api';
 import { toast } from 'react-toastify';
 
 const AdminOrdersPage = () => {
@@ -15,7 +15,7 @@ const AdminOrdersPage = () => {
   const fetchOrders = async () => {
     try {
       setLoading(true);
-      const { data } = await axios.get('/api/orders');
+      const data = await getAdminOrders();
       setOrders(data);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to fetch orders');
@@ -27,8 +27,8 @@ const AdminOrdersPage = () => {
 
   const handleStatusChange = async (orderId, newStatus) => {
     try {
-      await axios.put(`/api/orders/${orderId}/status`, { status: newStatus });
-      setOrders(orders.map(order => 
+      await updateOrderStatus(orderId, newStatus);
+      setOrders(orders.map(order =>
         order._id === orderId ? { ...order, status: newStatus } : order
       ));
       toast.success('Order status updated successfully');
