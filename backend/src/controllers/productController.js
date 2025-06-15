@@ -251,18 +251,25 @@ const getProductsForComparison = catchAsync(async (req, res) => {
 // @route   GET /api/products/:id/related
 // @access  Public
 const getRelatedProducts = catchAsync(async (req, res) => {
+  console.log('getRelatedProducts called with ID:', req.params.id);
+
   const product = await Product.findById(req.params.id);
-  
+
   if (!product) {
+    console.log('Product not found for ID:', req.params.id);
     res.status(404);
     throw new Error('Product not found');
   }
-  
+
+  console.log('Found product:', product.name, 'Category:', product.category);
+
   const relatedProducts = await Product.find({
     _id: { $ne: product._id },
     category: product.category
-  }).limit(4);
-  
+  }).limit(4).select('name price description images category stock ratings numOfReviews');
+
+  console.log('Found related products:', relatedProducts.length);
+
   res.status(200).json({
     success: true,
     products: relatedProducts
