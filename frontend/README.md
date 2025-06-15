@@ -293,6 +293,4 @@ For support and questions:
 - Review the troubleshooting guide
 - Contact the development team
 
----
 
-**Built with ❤️ using React and Next.js**
