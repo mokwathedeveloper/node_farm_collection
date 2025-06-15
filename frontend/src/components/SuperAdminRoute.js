@@ -7,7 +7,7 @@ const SuperAdminRoute = () => {
   const location = useLocation();
   
   // Check if user is logged in and has superadmin role
-  if (!userInfo || !userInfo.isSuperAdmin) {
+  if (!userInfo || userInfo.role !== 'superadmin') {
     // Redirect to login if not authenticated or not superadmin
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
