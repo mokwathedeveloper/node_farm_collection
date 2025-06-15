@@ -3,16 +3,16 @@ import { Link } from 'react-router-dom';
 
 function Footer() {
   return (
-    <footer className="bg-gray-800 text-white py-8">
-      <div className="container mx-auto px-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+    <footer className="bg-gray-800 text-white py-8 mt-16">
+      <div className="container mx-auto px-4 max-w-7xl">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center md:text-left">
           <div>
             <h3 className="text-xl font-semibold mb-4">E-Commerce Store</h3>
             <p className="text-gray-300">
               Your one-stop shop for all your needs. Quality products at affordable prices.
             </p>
           </div>
-          
+
           <div>
             <h3 className="text-xl font-semibold mb-4">Quick Links</h3>
             <ul className="space-y-2">
@@ -22,12 +22,12 @@ function Footer() {
               <li><Link to="/login" className="text-gray-300 hover:text-white transition">Login</Link></li>
             </ul>
           </div>
-          
+
           <div>
             <h3 className="text-xl font-semibold mb-4">Contact Us</h3>
             <p className="text-gray-300 mb-2">Email: support@ecommerce.com</p>
             <p className="text-gray-300 mb-2">Phone: (123) 456-7890</p>
-            <div className="flex space-x-4 mt-4">
+            <div className="flex space-x-4 mt-4 justify-center md:justify-start">
               {/* Using proper URLs for social media links */}
               <a 
                 href="https://facebook.com" 
@@ -64,6 +64,9 @@ function Footer() {
           <p>&copy; {new Date().getFullYear()} E-Commerce Store. All rights reserved.</p>
         </div>
       </div>
+
+      {/* Extra spacing to ensure footer is always visible */}
+      <div className="h-4"></div>
     </footer>
   );
 }

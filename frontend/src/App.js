@@ -51,6 +51,7 @@ import AdminSettingsPage from './pages/admin/AdminSettingsPage';
 // Superadmin page imports
 import SuperAdminSettingsPage from './pages/superadmin/SuperAdminSettingsPage';
 import SystemLogsPage from './pages/superadmin/SystemLogsPage';
+import UserManagementPage from './pages/superadmin/UserManagementPage';
 
 // Router future flags
 import { UNSAFE_EnableScrollRestoration, UNSAFE_useScrollRestoration } from 'react-router-dom';
@@ -88,7 +89,7 @@ function App() {
                   <GuestProvider>
                     <div className="flex flex-col min-h-screen">
                       <Navbar />
-                      <main className="flex-grow">
+                      <main className="flex-grow pb-8">
                         <Routes>
                           {/* Public Routes */}
                           <Route path="/" element={<HomePage />} />
@@ -127,6 +128,7 @@ function App() {
                           {/* SuperAdmin Routes */}
                           <Route element={<SuperAdminRoute />}>
                             <Route path="/superadmin" element={<SuperAdminDashboard />} />
+                            <Route path="/superadmin/users" element={<UserManagementPage />} />
                             <Route path="/superadmin/settings" element={<SuperAdminSettingsPage />} />
                             <Route path="/superadmin/logs" element={<SystemLogsPage />} />
                           </Route>
