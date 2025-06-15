@@ -40,7 +40,7 @@ const protect = async (req, res, next) => {
 
 // Admin middleware
 const admin = (req, res, next) => {
-  if (req.user && req.user.isAdmin) {
+  if (req.user && (req.user.role === 'admin' || req.user.role === 'superadmin' || req.user.isAdmin)) {
     next();
   } else {
     res.status(403).json({ message: 'Not authorized as an admin' });
@@ -49,7 +49,7 @@ const admin = (req, res, next) => {
 
 // Superadmin middleware
 const superadmin = (req, res, next) => {
-  if (req.user && req.user.isSuperAdmin) {
+  if (req.user && (req.user.role === 'superadmin' || req.user.isSuperAdmin)) {
     next();
   } else {
     res.status(403).json({ message: 'Not authorized as a superadmin' });

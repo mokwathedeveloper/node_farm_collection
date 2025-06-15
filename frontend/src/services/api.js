@@ -3,7 +3,7 @@ import { API_URL } from '../config';
 
 // Create axios instance with default config
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: '/api',
   headers: {
     'Content-Type': 'application/json',
   },
@@ -65,6 +65,27 @@ export const getProductStats = async () => {
   return response.data;
 };
 
+export const getRelatedProducts = async (productId) => {
+  const response = await api.get(`/products/${productId}/related`);
+  return response.data;
+};
+
+// Review API functions
+export const getProductReviews = async (productId) => {
+  const response = await api.get(`/products/${productId}/reviews`);
+  return response.data;
+};
+
+export const addProductReview = async (productId, reviewData) => {
+  const response = await api.post(`/products/${productId}/reviews`, reviewData);
+  return response.data;
+};
+
+export const deleteProductReview = async (productId, reviewId) => {
+  const response = await api.delete(`/products/${productId}/reviews/${reviewId}`);
+  return response.data;
+};
+
 // Cart API
 export const addToCart = async (productId, quantity = 1) => {
   const response = await api.post('/cart', { productId, quantity });
@@ -102,4 +123,36 @@ export const removeFromWishlist = async (productId) => {
   return response.data;
 };
 
-export default api; 
+// Admin Orders API
+export const getAdminOrders = async () => {
+  const response = await api.get('/orders/admin');
+  return response.data;
+};
+
+export const updateOrderStatus = async (orderId, status) => {
+  const response = await api.put(`/orders/${orderId}/status`, { status });
+  return response.data;
+};
+
+// User Management API (Superadmin)
+export const getAllUsers = async () => {
+  const response = await api.get('/superadmin/users');
+  return response.data;
+};
+
+export const updateUserRole = async (userId, role) => {
+  const response = await api.put(`/superadmin/users/${userId}/role`, { role });
+  return response.data;
+};
+
+export const deleteUser = async (userId) => {
+  const response = await api.delete(`/users/${userId}`);
+  return response.data;
+};
+
+export const createAdminUser = async (userData) => {
+  const response = await api.post('/auth/superadmin/create-admin', userData);
+  return response.data;
+};
+
+export default api;

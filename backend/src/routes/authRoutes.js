@@ -10,7 +10,7 @@ const {
   refreshToken,
   logout
 } = require('../controllers/authController');
-const { auth, authorize, protect } = require('../middleware/auth');
+const { protect, admin, superadmin } = require('../middleware/authMiddleware');
 const { rateLimiter } = require('../middleware/rateLimiterMiddleware');
 const { User, ROLES } = require('../models/User');
 
@@ -110,7 +110,7 @@ router.post('/refresh', rateLimiter({ max: 20 }), refreshToken);
  *       200:
  *         description: Logout successful
  */
-router.post('/logout', auth, logout);
+router.post('/logout', protect, logout);
 
 /**
  * @swagger
@@ -227,11 +227,11 @@ router.post('/setup-admin', rateLimiter({ max: 3 }), setupAdmin);
  *         description: Not authorized
  */
 router.route('/profile')
-  .get(auth, getProfile)
-  .put(auth, updateProfile);
+  .get(protect, getProfile)
+  .put(protect, updateProfile);
 
 // Admin only routes
-router.get('/admin/users', auth, authorize('admin', 'superadmin'), async (req, res) => {
+router.get('/admin/users', protect, admin, async (req, res) => {
   try {
     const users = await User.find({}).select('-password');
     res.json(users);
@@ -241,7 +241,7 @@ router.get('/admin/users', auth, authorize('admin', 'superadmin'), async (req, r
 });
 
 // Super admin only routes
-router.post('/superadmin/create-admin', auth, authorize('superadmin'), async (req, res) => {
+router.post('/superadmin/create-admin', protect, superadmin, async (req, res) => {
   try {
     const { name, email, password } = req.body;
 
@@ -274,8 +274,20 @@ router.post('/superadmin/create-admin', auth, authorize('superadmin'), async (re
   }
 });
 
-// Check superadmin status
-router.get('/check-superadmin', protect, async (req, res) => {
+// Check if any superadmin exists (public endpoint)
+router.get('/check-superadmin', async (req, res) => {
+  try {
+    const superadminExists = await User.findOne({ role: 'superadmin' });
+    res.json({
+      exists: !!superadminExists
+    });
+  } catch (error) {
+    res.status(500).json({ message: 'Server error' });
+  }
+});
+
+// Check current user's superadmin status - requires authentication
+router.get('/check-superadmin-status', protect, async (req, res) => {
   try {
     res.json({
       isSuperAdmin: req.user.role === 'superadmin'

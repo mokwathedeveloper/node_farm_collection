@@ -17,9 +17,15 @@ export const login = createAsyncThunk(
         tokenExists: !!data.token 
       });
       
-      // Store user info in localStorage
+      // Store user info and token in localStorage
       localStorage.setItem('userInfo', JSON.stringify(data));
-      
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+        console.log('Token stored in localStorage');
+      } else {
+        console.warn('No token received in login response');
+      }
+
       return data;
     } catch (error) {
       console.error('Login error:', error.response?.data || error.message);
@@ -41,6 +47,27 @@ const initialState = {
   error: null,
 };
 
+// Initialize token from userInfo if it exists but token doesn't exist separately
+const initializeToken = () => {
+  const userInfo = localStorage.getItem('userInfo');
+  const token = localStorage.getItem('token');
+
+  if (userInfo && !token) {
+    try {
+      const parsedUserInfo = JSON.parse(userInfo);
+      if (parsedUserInfo.token) {
+        localStorage.setItem('token', parsedUserInfo.token);
+        console.log('Token initialized from userInfo');
+      }
+    } catch (error) {
+      console.error('Error parsing userInfo:', error);
+    }
+  }
+};
+
+// Initialize token on module load
+initializeToken();
+
 // Auth slice
 const authSlice = createSlice({
   name: 'auth',
@@ -48,6 +75,7 @@ const authSlice = createSlice({
   reducers: {
     logout: (state) => {
       localStorage.removeItem('userInfo');
+      localStorage.removeItem('token');
       state.userInfo = null;
       state.error = null;
     },
