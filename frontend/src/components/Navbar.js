@@ -44,7 +44,7 @@ const Navbar = () => {
           Wishlist
         </Link>
 
-        {userInfo.isAdmin && (
+        {(userInfo.isAdmin || userInfo.role === 'admin' || userInfo.role === 'superadmin') && (
           <>
             <div className="border-t border-gray-200"></div>
             <Link to="/admin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
@@ -59,7 +59,7 @@ const Navbar = () => {
           </>
         )}
 
-        {userInfo.isSuperAdmin && (
+        {(userInfo.isSuperAdmin || userInfo.role === 'superadmin') && (
           <>
             <div className="border-t border-gray-200"></div>
             <Link to="/superadmin" className="block px-4 py-2 text-sm text-gray-700 hover:bg-gray-100">
@@ -97,7 +97,7 @@ const Navbar = () => {
               <Link to="/products" className="border-transparent text-gray-500 hover:border-blue-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                 Products
               </Link>
-              {userInfo?.isAdmin && (
+              {(userInfo?.isAdmin || userInfo?.role === 'admin' || userInfo?.role === 'superadmin') && (
                 <Link to="/admin" className="border-transparent text-gray-500 hover:border-blue-500 hover:text-gray-700 inline-flex items-center px-1 pt-1 border-b-2 text-sm font-medium">
                   Admin
                 </Link>
@@ -202,7 +202,7 @@ const Navbar = () => {
                   Wishlist
                 </Link>
                 
-                {userInfo.isAdmin && (
+                {(userInfo.isAdmin || userInfo.role === 'admin' || userInfo.role === 'superadmin') && (
                   <>
                     <div className="border-t border-gray-200"></div>
                     <Link to="/admin" className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100">
@@ -217,7 +217,7 @@ const Navbar = () => {
                   </>
                 )}
 
-                {userInfo.isSuperAdmin && (
+                {(userInfo.isSuperAdmin || userInfo.role === 'superadmin') && (
                   <>
                     <div className="border-t border-gray-200"></div>
                     <Link to="/superadmin" className="block px-4 py-2 text-base font-medium text-gray-500 hover:text-gray-800 hover:bg-gray-100">

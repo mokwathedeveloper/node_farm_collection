@@ -9,9 +9,9 @@ function AdminLayout({ children }) {
   const dispatch = useDispatch();
   const { userInfo } = useSelector((state) => state.auth);
 
-  // Check if user is admin (not superadmin)
+  // Check if user is admin or superadmin
   React.useEffect(() => {
-    if (!userInfo || userInfo.role !== 'admin') {
+    if (!userInfo || (userInfo.role !== 'admin' && userInfo.role !== 'superadmin')) {
       navigate('/login');
     }
   }, [userInfo, navigate]);

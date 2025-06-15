@@ -11,8 +11,8 @@ const PrivateRoute = ({ children }) => {
     return <Navigate to="/login" state={{ from: location }} replace />;
   }
 
-  if (location.pathname.startsWith('/admin') && !userInfo.isAdmin) {
-    // Redirect to home page if admin access is required but user is not an admin
+  if (location.pathname.startsWith('/admin') && !userInfo.isAdmin && userInfo.role !== 'admin' && userInfo.role !== 'superadmin') {
+    // Redirect to home page if admin access is required but user is not an admin or superadmin
     return <Navigate to="/" replace />;
   }
 
