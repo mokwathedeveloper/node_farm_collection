@@ -9,9 +9,12 @@ const authRoutes = require('./routes/authRoutes');
 const userRoutes = require('./routes/userRoutes');
 const productRoutes = require('./routes/productRoutes');
 const cartRoutes = require('./routes/cartRoutes');
+const guestCartRoutes = require('./routes/guestCartRoutes');
 const wishlistRoutes = require('./routes/wishlistRoutes');
 const adminRoutes = require('./routes/adminRoutes');
+const superadminRoutes = require('./routes/superadminRoutes');
 const orderRoutes = require('./routes/orderRoutes');
+const reviewRoutes = require('./routes/reviewRoutes');
 
 // Load environment variables
 dotenv.config();
@@ -49,12 +52,15 @@ app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
 
 // Mount routes in specific order to prevent conflicts
 app.use('/api/auth', authRoutes);
+app.use('/api/superadmin', superadminRoutes);  // Superadmin routes must be before admin routes
 app.use('/api/admin', adminRoutes);  // Admin routes must be before other routes
 app.use('/api/users', userRoutes);
 app.use('/api/orders', orderRoutes);
 app.use('/api/products', productRoutes);
 app.use('/api/cart', cartRoutes);
+app.use('/api/guest-cart', guestCartRoutes);
 app.use('/api/wishlist', wishlistRoutes);
+app.use('/api/reviews', reviewRoutes);
 
 // Error handling middleware
 app.use(notFound);

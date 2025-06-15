@@ -3,7 +3,7 @@ import { toast } from 'react-toastify';
 import { API_URL } from '../config';
 
 const api = axios.create({
-  baseURL: API_URL,
+  baseURL: '/api',
   headers: {
     'Content-Type': 'application/json',
   },
