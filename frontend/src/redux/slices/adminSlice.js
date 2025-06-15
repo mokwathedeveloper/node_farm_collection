@@ -13,7 +13,7 @@ export const getDashboardStats = createAsyncThunk(
           Authorization: `Bearer ${auth.userInfo.token}`,
         },
       };
-      const { data } = await axios.get(`${API_URL}/admin/dashboard-stats`, config);
+      const { data } = await axios.get('/api/admin/dashboard-stats', config);
       return data;
     } catch (error) {
       return rejectWithValue(
@@ -36,7 +36,7 @@ export const getSalesAnalytics = createAsyncThunk(
         },
       };
       const { data } = await axios.get(
-        `${API_URL}/admin/sales-analytics?timeframe=${timeframe}`, 
+        `/api/admin/sales-analytics?timeframe=${timeframe}`,
         config
       );
       return data;
@@ -60,7 +60,7 @@ export const getUsersWithHistory = createAsyncThunk(
           Authorization: `Bearer ${auth.userInfo.token}`,
         },
       };
-      const { data } = await axios.get(`${API_URL}/admin/users-with-history`, config);
+      const { data } = await axios.get('/api/admin/users-with-history', config);
       return data;
     } catch (error) {
       return rejectWithValue(
@@ -82,7 +82,7 @@ export const fetchUsers = createAsyncThunk(
           Authorization: `Bearer ${auth.userInfo.token}`,
         },
       };
-      const { data } = await axios.get(`${API_URL}/users`, config);
+      const { data } = await axios.get('/api/users', config);
       return data;
     } catch (error) {
       console.error('Error fetching users:', error.response || error);

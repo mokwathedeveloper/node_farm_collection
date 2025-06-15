@@ -18,7 +18,7 @@ function OrderDetailsPage() {
     const fetchOrder = async () => {
       try {
         setLoading(true);
-        const { data } = await api.get(`/api/orders/${id}`);
+        const { data } = await api.get(`/orders/${id}`);
         setOrder(data);
         setLoading(false);
       } catch (err) {
